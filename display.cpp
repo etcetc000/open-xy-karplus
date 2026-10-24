@@ -12,6 +12,19 @@ namespace {
 using opxy::i32;
 using opxy::u32;
 using namespace opxy::draw;
+
+// Round only the screen caption; the parameter keeps its full Q31 precision.
+inline void amount(char* out, unsigned capacity, opxy::i32 value) {
+    const unsigned p = value < 0 ? 0 : ((static_cast<unsigned>(value) >> 10) * 100 + (1u << 20)) >> 21;
+    char text[4];
+    unsigned n = 0;
+    if (p >= 100) text[n++] = '1';
+    if (p >= 10) text[n++] = static_cast<char>('0' + p / 10 % 10);
+    text[n++] = static_cast<char>('0' + p % 10);
+    text[n] = 0;
+    opxy::draw::copy(out, capacity, text);
+}
+
 const i32 kLeft = 50, kRight = 430, kY = 116;   // the string's ends and height, pixels
 const i32 kLength = kRight - kLeft;            // 380 pixels
 // The string is drawn in kPieces outlines (an outline reaches at most 64 pixels
@@ -56,6 +69,8 @@ inline void display_reset(DisplayState& state) {
 }
 
 inline void display(DisplayState& state, const Input& input, Frame& frame) {
+    for (u32 i = 0; i < 4; ++i)
+        amount(frame.header[i], sizeof(frame.header[i]), input.parameters[i]);
     const i32 elapsed = clamp(input.elapsed, 0, 205);  // at most 0.2 s per frame
     const i32 bright = fraction(input.parameters[0]);
     const i32 at = static_cast<i32>(along(kPickPositions, input.parameters[1]) >> 5);  // the pick point, 0..512 of 1024
