@@ -6,9 +6,15 @@ namespace pluck {
 // The string is two half-length outlines (paths 0 and 1), then its two pegs,
 // the pick marker and four background strings for Detune.
 using Frame = opxy::draw::Frame<2, 64, 9, 0, 3>;
+// Each note's pluck: its waves' height, time since the note and pick point.
+const unsigned kPlucks = 12;
+struct Pluck {
+    opxy::i32 amplitude;     // Q10 pixels; 0 when the pluck has faded
+    opxy::i32 time;          // since the note, Q10 seconds
+    opxy::i32 pick;          // Q10 pixels from the left peg
+};
 struct DisplayState {
-    opxy::i32 amplitude;     // the wave's height, Q10 pixels
-    opxy::i32 time;          // since the pluck, Q10 seconds
+    Pluck plucks[kPlucks];   // the plucks still ringing, which add up
     opxy::u32 serial;        // the last note start seen
     opxy::u32 track;
     opxy::u32 initialized;

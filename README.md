@@ -19,7 +19,8 @@ the controls shape the string.
 
 The screen shows the string between its pegs. Each note sends a small wave
 out both ways from the Pick position; the waves bounce off the pegs and fade
-faster the more the string is damped, and Bright sets their height. Detune
+faster the more the string is damped, and Bright sets their height. The waves
+of up to twelve notes ring at once and add up. Detune
 spreads faint companion strings above and below.
 
 | File | Owns |

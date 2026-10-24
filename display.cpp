@@ -1,8 +1,9 @@
 #include "display.h"
 
 // A string between two pegs. Each note sends a small wave out both ways from
-// the Pick position; the waves bounce off the pegs, inverting as on a real
-// string, and fade faster the more the string is damped. Bright sets their
+// the Pick position; the waves bounce off the pegs, which hold still, inverting
+// as on a real string, and fade faster the more the string is damped. The
+// waves of up to kPlucks notes ring at once and add up. Bright sets their
 // height, and Detune spreads faint companion strings above and below. Display
 // code only: no audio state.
 namespace pluck {
@@ -14,6 +15,7 @@ const i32 kLeft = 120, kRight = 360, kY = 116;  // the string's ends and height,
 const i32 kLength = kRight - kLeft;            // 240 pixels: two outlines of 120
 const i32 kSpeed = 260;                        // the waves' speed, pixels per second
 const i32 kWave = 14;                          // half a wave's width, pixels
+const i32 kRibbon = 256;                       // the outline's way back, Q10: a quarter pixel below
 const u32 kPeg = 2, kMarker = 4, kCompanion = 5, kCompanions = 4;
 
 // A control (Q31 0..1) as 0..1024.
@@ -26,20 +28,25 @@ i32 wave(i32 d) {
     return sine(d / kWave * 1800 / unit);
 }
 
-// Where a wave that set out from `start` has reached after moving `travel`
-// (both Q10 pixels, signed), reflecting at both pegs; `sign` turns negative
-// after an odd number of bounces.
-i32 bounce(i32 start, i32 travel, i32& sign) {
-    const i32 span = kLength * unit, reached = start + travel;
-    const i32 laps = reached >= 0 ? reached / span : -((span - 1 - reached) / span);
-    const i32 into = reached - laps * span;  // 0..span within this lap
-    sign = laps & 1 ? -1 : 1;
-    return laps & 1 ? span - into : into;
+// The string's displacement at x (Q10 pixels from the left peg) from a wave
+// centred at c on an unbounded line. On a string fixed at both pegs, the wave
+// is accompanied by mirror images, inverted at every peg and repeating every
+// two lengths, which hold both ends still: y(0) = y(kLength) = 0.
+i32 displacement(i32 x, i32 c) {
+    const i32 period = 2 * kLength * unit;
+    i32 centre = c % period;
+    if (centre < 0) centre += period;
+    i32 sum = 0;
+    for (i32 n = -1; n <= 1; ++n) {
+        const i32 at = centre + n * period;
+        sum += wave(x - at) - wave(-x - at);
+    }
+    return sum;
 }
 }
 
 inline void display_reset(DisplayState& state) {
-    state.amplitude = state.time = 0;
+    for (u32 p = 0; p < kPlucks; ++p) state.plucks[p].amplitude = state.plucks[p].time = state.plucks[p].pick = 0;
     state.serial = state.track = state.initialized = 0;
     state.key = 1;
 }
@@ -48,43 +55,60 @@ inline void display(DisplayState& state, const Input& input, Frame& frame) {
     const i32 elapsed = clamp(input.elapsed, 0, 205);  // at most 0.2 s per frame
     const i32 bright = fraction(input.parameters[0]), at = fraction(input.parameters[1]);
     const i32 damp = fraction(input.parameters[2]), detune = fraction(input.parameters[3]);
+    const i32 pick = at * kLength;  // Q10 pixels from the left peg
     if (!state.initialized || state.track != input.track || input.reduced_motion) {
-        state.amplitude = 0;
+        for (u32 p = 0; p < kPlucks; ++p) state.plucks[p].amplitude = 0;
     } else if (input.note_serial != state.serial) {
-        state.amplitude = (4 + bright * 16 / 1024) * unit;  // 4 to 20 pixels high
-        state.time = 0;
+        // A new pluck takes the quietest slot: a faded one, or the softest still ringing.
+        u32 slot = 0;
+        for (u32 p = 1; p < kPlucks; ++p)
+            if (state.plucks[p].amplitude < state.plucks[slot].amplitude) slot = p;
+        state.plucks[slot].amplitude = (4 + bright * 10 / 1024) * unit;  // 4 to 14 pixels, twice that as it starts
+        state.plucks[slot].time = 0;
+        state.plucks[slot].pick = pick;
     }
     state.initialized = 1;
     state.track = input.track;
     state.serial = input.note_serial;
-    // Settle at 1.5 (little Damp) to 6 (full Damp) per second.
+    // Each pluck settles at 1.5 (little Damp) to 6 (full Damp) per second.
     const i32 rate = 1536 + damp * 4608 / 1024;
-    const i32 settle = ((state.amplitude * rate) >> 10) * elapsed >> 10;
-    state.amplitude -= settle > 0 ? settle : state.amplitude > 0 && elapsed > 0;
-    if (state.amplitude < 0) state.amplitude = 0;
-    state.time = clamp(state.time + elapsed, 0, 60 * unit);
-
-    // The two waves, out from the pick point in each direction.
-    const i32 pick = at * kLength;  // Q10 pixels from the left peg
-    const i32 travel = state.time * kSpeed;
-    i32 sign_right, sign_left;
-    const i32 right = bounce(pick, travel, sign_right), left = bounce(pick, -travel, sign_left);
-    // Each outline covers half the string, out along it and back between its
-    // outgoing points: no point repeats, which the device's parser needs.
+    bool moving = false;
+    for (u32 p = 0; p < kPlucks; ++p) {
+        Pluck& pluck = state.plucks[p];
+        const i32 settle = ((pluck.amplitude * rate) >> 10) * elapsed >> 10;
+        pluck.amplitude -= settle > 0 ? settle : pluck.amplitude > 0 && elapsed > 0;
+        if (pluck.amplitude < 0) pluck.amplitude = 0;
+        pluck.time = clamp(pluck.time + elapsed, 0, 60 * unit);
+        moving = moving || pluck.amplitude;
+    }
+    // Each outline covers half the string: out along it, then back over the
+    // same positions a quarter pixel lower. The two passes stay together, and
+    // no point repeats, which the device's parser needs.
     for (u32 half = 0; half < 2; ++half) {
         Frame::path_type& path = frame.paths[half];
-        for (u32 i = 0; i < 64; ++i) {
-            const i32 u = i < 32 ? static_cast<i32>(i) * unit / 31 : static_cast<i32>(2 * (63 - i) + 1) * unit / 66;
+        for (u32 i = 0; i < 32; ++i) {
+            const i32 u = static_cast<i32>(i) * unit / 31;
             const i32 x = static_cast<i32>(half) * (kLength / 2) * unit + u * (kLength / 2);  // from the left peg
-            const i32 height = sign_right * wave(x - right) + sign_left * wave(x - left);
-            path.points[i].x = u * (kLength / 2) - (kLength / 4) * unit;
-            path.points[i].y = clamp(floor_q10(state.amplitude * height), -40 * unit, 40 * unit);
+            // Every ringing pluck's two waves, out from its pick point each way.
+            i32 y = 0;
+            for (u32 p = 0; p < kPlucks; ++p) {
+                const Pluck& pluck = state.plucks[p];
+                if (!pluck.amplitude) continue;
+                const i32 travel = pluck.time * kSpeed;
+                y += floor_q10(pluck.amplitude *
+                               (displacement(x, pluck.pick + travel) + displacement(x, pluck.pick - travel)));
+            }
+            Point& out = path.points[i];
+            out.x = u * (kLength / 2) - (kLength / 4) * unit;
+            out.y = clamp(y, -40 * unit, 40 * unit);
+            path.points[63 - i].x = out.x;
+            path.points[63 - i].y = out.y + kRibbon;
         }
         place(frame, half, (kLeft + kLength / 4 + static_cast<i32>(half) * (kLength / 2)) * unit, kY * unit, unit, 0,
               stroke);
     }
     // New geometry only while the string moves; at rest it stays as it is.
-    if (state.amplitude) state.key = state.key % 0x7ffffffeu + 1;
+    if (moving) state.key = state.key % 0x7ffffffeu + 1;
     frame.paths[0].key = frame.paths[1].key = state.key;
     place(frame, kPeg, kLeft * unit, kY * unit, unit, 1, fill_and_stroke);
     place(frame, kPeg + 1, kRight * unit, kY * unit, unit, 1, fill_and_stroke);
