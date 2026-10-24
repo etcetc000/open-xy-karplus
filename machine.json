@@ -2,7 +2,7 @@
   "schema": 1,
   "sdk": "1.0",
   "kind": "synth",
-  "description": "A plucked string: noise excites a tuned delay line that rings and fades.",
+  "description": "A plucked string: a pick excites a tuned delay line that rings and fades.",
   "identity": {
     "engine": 1,
     "page": 84
