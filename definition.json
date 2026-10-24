@@ -83,11 +83,11 @@
     "display": {
       "stateBytes": 160,
       "stateAlignment": 4,
-      "paths": 2,
+      "paths": 4,
       "points": 64,
-      "nodes": 9,
+      "nodes": 11,
       "texts": 0,
-      "palette": 3
+      "palette": 4
     }
   }
 }

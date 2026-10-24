@@ -11,12 +11,15 @@ namespace {
 using opxy::i32;
 using opxy::u32;
 using namespace opxy::draw;
-const i32 kLeft = 120, kRight = 360, kY = 116;  // the string's ends and height, pixels
-const i32 kLength = kRight - kLeft;            // 240 pixels: two outlines of 120
+const i32 kLeft = 50, kRight = 430, kY = 116;   // the string's ends and height, pixels
+const i32 kLength = kRight - kLeft;            // 380 pixels
+// The string is drawn in kPieces outlines (an outline reaches at most 64 pixels
+// from its centre), each overlapping its neighbours so the string never breaks.
+const i32 kPieces = 4, kPiece = kLength / kPieces, kOverlap = 3;
 const i32 kSpeed = 260;                        // the waves' speed, pixels per second
 const i32 kWave = 14;                          // half a wave's width, pixels
 const i32 kRibbon = 256;                       // the outline's way back, Q10: a quarter pixel below
-const u32 kPeg = 2, kMarker = 4, kCompanion = 5, kCompanions = 4;
+const u32 kPeg = 4, kMarker = 6, kCompanion = 7, kCompanions = 4;
 
 // A control (Q31 0..1) as 0..1024.
 i32 fraction(i32 control) { return (control < 0 ? 0 : control >> 16) * 1024 / 32767; }
@@ -81,14 +84,16 @@ inline void display(DisplayState& state, const Input& input, Frame& frame) {
         pluck.time = clamp(pluck.time + elapsed, 0, 60 * unit);
         moving = moving || pluck.amplitude;
     }
-    // Each outline covers half the string: out along it, then back over the
-    // same positions a quarter pixel lower. The two passes stay together, and
-    // no point repeats, which the device's parser needs.
-    for (u32 half = 0; half < 2; ++half) {
-        Frame::path_type& path = frame.paths[half];
+    // Each outline covers its piece of the string: out along it, then back over
+    // the same positions a quarter pixel lower. The two passes stay together,
+    // and no point repeats, which the device's parser needs.
+    for (i32 piece = 0; piece < kPieces; ++piece) {
+        Frame::path_type& path = frame.paths[piece];
+        const i32 start = piece ? piece * kPiece - kOverlap : 0;
+        const i32 end = piece + 1 < kPieces ? (piece + 1) * kPiece + kOverlap : kLength;
+        const i32 centre = (start + end) * unit / 2;  // Q10 pixels from the left peg
         for (u32 i = 0; i < 32; ++i) {
-            const i32 u = static_cast<i32>(i) * unit / 31;
-            const i32 x = static_cast<i32>(half) * (kLength / 2) * unit + u * (kLength / 2);  // from the left peg
+            const i32 x = start * unit + (end - start) * static_cast<i32>(i) * unit / 31;  // from the left peg
             // Every ringing pluck's two waves, out from its pick point each way.
             i32 y = 0;
             for (u32 p = 0; p < kPlucks; ++p) {
@@ -99,25 +104,26 @@ inline void display(DisplayState& state, const Input& input, Frame& frame) {
                                (displacement(x, pluck.pick + travel) + displacement(x, pluck.pick - travel)));
             }
             Point& out = path.points[i];
-            out.x = u * (kLength / 2) - (kLength / 4) * unit;
+            out.x = x - centre;
             out.y = clamp(y, -40 * unit, 40 * unit);
             path.points[63 - i].x = out.x;
             path.points[63 - i].y = out.y + kRibbon;
         }
-        place(frame, half, (kLeft + kLength / 4 + static_cast<i32>(half) * (kLength / 2)) * unit, kY * unit, unit, 0,
-              stroke);
+        place(frame, static_cast<u32>(piece), kLeft * unit + centre, kY * unit, unit, 0, stroke);
     }
     // New geometry only while the string moves; at rest it stays as it is.
     if (moving) state.key = state.key % 0x7ffffffeu + 1;
-    frame.paths[0].key = frame.paths[1].key = state.key;
+    for (i32 piece = 0; piece < kPieces; ++piece) frame.paths[piece].key = state.key;
     place(frame, kPeg, kLeft * unit, kY * unit, unit, 1, fill_and_stroke);
     place(frame, kPeg + 1, kRight * unit, kY * unit, unit, 1, fill_and_stroke);
     place(frame, kMarker, kLeft * unit + pick, (kY + 34) * unit, unit, 1, fill_and_stroke);
-    // Companion strings, spread evenly by Detune, up to 6 pixels apart.
+    // Companion strings, spread evenly by Detune up to 20 pixels apart: the
+    // inner pair lighter (palette 2), the outer pair darker (palette 3).
     for (u32 c = 0; c < kCompanions; ++c) {
         const i32 step = c < 2 ? static_cast<i32>(c) + 1 : 1 - static_cast<i32>(c);  // +1, +2, -1, -2
         if (detune)
-            place(frame, kCompanion + c, (kLeft + kLength / 2) * unit, kY * unit + step * detune * 6, unit, 2, stroke);
+            place(frame, kCompanion + c, (kLeft + kLength / 2) * unit, kY * unit + step * detune * 20, unit,
+                  step == 1 || step == -1 ? 2 : 3, stroke);
         else
             hide(frame, kCompanion + c);
     }
