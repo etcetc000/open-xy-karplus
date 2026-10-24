@@ -75,8 +75,9 @@ inline void display(DisplayState& state, const Input& input, Frame& frame) {
     state.initialized = 1;
     state.track = input.track;
     state.serial = input.note_serial;
-    // Each pluck settles at 1.5 (little Damp) to 6 (full Damp) per second.
-    const i32 rate = 1536 + damp * 4608 / 1024;
+    // Each pluck settles at 0.5 (little Damp) to 2.5 (full Damp) per second, slowly
+    // enough to cross the string and come back before it fades.
+    const i32 rate = 512 + damp * 2048 / 1024;
     bool moving = false;
     for (u32 p = 0; p < kPlucks; ++p) {
         Pluck& pluck = state.plucks[p];
