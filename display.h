@@ -3,13 +3,15 @@
 
 namespace pluck {
 // Matches resources.display in definition.json: paths, points, nodes, texts, palette.
-// The string is path 0, then its two pegs and the pick marker.
-using Frame = opxy::draw::Frame<1, 64, 4, 0, 2>;
+// The string is two half-length outlines (paths 0 and 1), then its two pegs,
+// the pick marker and four background strings for Detune.
+using Frame = opxy::draw::Frame<2, 64, 9, 0, 3>;
 struct DisplayState {
-    opxy::i32 amplitude;     // Q10 pixels, before the string's 2x scale
-    opxy::u32 phase;         // tenths of a degree
+    opxy::i32 amplitude;     // the wave's height, Q10 pixels
+    opxy::i32 time;          // since the pluck, Q10 seconds
     opxy::u32 serial;        // the last note start seen
     opxy::u32 track;
     opxy::u32 initialized;
+    opxy::u32 key;           // the outlines' geometry key
 };
 }

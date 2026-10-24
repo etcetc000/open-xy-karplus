@@ -17,8 +17,10 @@ the controls shape the string.
 | Damp | Treble lost on every pass: a glassy, metallic ring to a dull, felt-muted string |
 | Detune | A second string up to about 25 cents apart, for a chorused, twelve-string shimmer |
 
-The screen shows the string between its pegs, swinging after each note from
-the Pick position and settling faster the more it is damped.
+The screen shows the string between its pegs. Each note sends a small wave
+out both ways from the Pick position; the waves bounce off the pegs and fade
+faster the more the string is damped, and Bright sets their height. Detune
+spreads faint companion strings above and below.
 
 | File | Owns |
 | --- | --- |

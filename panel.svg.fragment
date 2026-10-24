@@ -1,11 +1,19 @@
 <g id="pluck_panel">
-  <!-- The neck behind the string. -->
+  <!-- The neck behind the strings. -->
   <rect x="100" y="104" width="280" height="24" fill="#141414"/>
-  <path id="pluck_node_0" transform="matrix(1 0 0 1 240 116)" d="M-60 0 L-56.1328 0 L-52.2656 0 L-48.3984 0 L-44.5312 0 L-40.6641 0 L-36.7969 0 L-32.9297 0 L-29.0625 0 L-25.1953 0 L-21.3281 0 L-17.4609 0 L-13.5938 0 L-9.7266 0 L-5.8594 0 L-1.9922 0 L1.875 0 L5.7422 0 L9.6094 0 L13.4766 0 L17.3438 0 L21.2109 0 L25.0781 0 L28.9453 0 L32.8125 0 L36.6797 0 L40.5469 0 L44.4141 0 L48.2812 0 L52.1484 0 L56.0156 0 L60 0 L54.4922 0 L50.8594 0 L47.2266 0 L43.5938 0 L39.9609 0 L36.3281 0 L32.6953 0 L29.0625 0 L25.4297 0 L21.7969 0 L18.1641 0 L14.5312 0 L10.8984 0 L7.2656 0 L3.6328 0 L0 0 L-3.75 0 L-7.3828 0 L-11.0156 0 L-14.6484 0 L-18.2812 0 L-21.9141 0 L-25.5469 0 L-29.1797 0 L-32.8125 0 L-36.4453 0 L-40.0781 0 L-43.7109 0 L-47.3438 0 L-50.9766 0 L-54.6094 0 L-58.2422 0 Z" fill="none" stroke="#F0F0F0" stroke-width="1.5"/>
-  <circle id="pluck_node_1" transform="matrix(1 0 0 1 120 116)" cx="0" cy="0" r="6" fill="#8C8C8C" stroke="#8C8C8C" stroke-width="1"/>
-  <circle id="pluck_node_2" transform="matrix(1 0 0 1 360 116)" cx="0" cy="0" r="6" fill="#8C8C8C" stroke="#8C8C8C" stroke-width="1"/>
-  <path id="pluck_node_3" transform="matrix(1 0 0 1 192 150)" d="M0 -6 L5 3 L-5 3 Z" fill="#8C8C8C" stroke="#8C8C8C" stroke-width="1"/>
-  <!-- Palette entries, parked off screen: the string, then the pegs and marker. -->
+  <!-- Companion strings for Detune, behind the string; parked until shown. -->
+  <path id="pluck_node_5" transform="matrix(1 0 0 1 640 120)" d="M-120 0 L120 0" fill="none" stroke="#4A4A4A" stroke-width="1"/>
+  <path id="pluck_node_6" transform="matrix(1 0 0 1 640 120)" d="M-120 0 L120 0" fill="none" stroke="#4A4A4A" stroke-width="1"/>
+  <path id="pluck_node_7" transform="matrix(1 0 0 1 640 120)" d="M-120 0 L120 0" fill="none" stroke="#4A4A4A" stroke-width="1"/>
+  <path id="pluck_node_8" transform="matrix(1 0 0 1 640 120)" d="M-120 0 L120 0" fill="none" stroke="#4A4A4A" stroke-width="1"/>
+  <!-- The string: two halves, each out along its half and back. -->
+  <path id="pluck_node_0" transform="matrix(1 0 0 1 180 116)" d="M-60 0 L-56.1328 0 L-52.2656 0 L-48.3984 0 L-44.5312 0 L-40.6641 0 L-36.7969 0 L-32.9297 0 L-29.0625 0 L-25.1953 0 L-21.3281 0 L-17.4609 0 L-13.5938 0 L-9.7266 0 L-5.8594 0 L-1.9922 0 L1.875 0 L5.7422 0 L9.6094 0 L13.4766 0 L17.3438 0 L21.2109 0 L25.0781 0 L28.9453 0 L32.8125 0 L36.6797 0 L40.5469 0 L44.4141 0 L48.2812 0 L52.1484 0 L56.0156 0 L60 0 L54.4922 0 L50.8594 0 L47.2266 0 L43.5938 0 L39.9609 0 L36.3281 0 L32.6953 0 L29.0625 0 L25.4297 0 L21.7969 0 L18.1641 0 L14.5312 0 L10.8984 0 L7.2656 0 L3.6328 0 L0 0 L-3.75 0 L-7.3828 0 L-11.0156 0 L-14.6484 0 L-18.2812 0 L-21.9141 0 L-25.5469 0 L-29.1797 0 L-32.8125 0 L-36.4453 0 L-40.0781 0 L-43.7109 0 L-47.3438 0 L-50.9766 0 L-54.6094 0 L-58.2422 0 Z" fill="none" stroke="#F0F0F0" stroke-width="1.5"/>
+  <path id="pluck_node_1" transform="matrix(1 0 0 1 300 116)" d="M-60 0 L-56.1328 0 L-52.2656 0 L-48.3984 0 L-44.5312 0 L-40.6641 0 L-36.7969 0 L-32.9297 0 L-29.0625 0 L-25.1953 0 L-21.3281 0 L-17.4609 0 L-13.5938 0 L-9.7266 0 L-5.8594 0 L-1.9922 0 L1.875 0 L5.7422 0 L9.6094 0 L13.4766 0 L17.3438 0 L21.2109 0 L25.0781 0 L28.9453 0 L32.8125 0 L36.6797 0 L40.5469 0 L44.4141 0 L48.2812 0 L52.1484 0 L56.0156 0 L60 0 L54.4922 0 L50.8594 0 L47.2266 0 L43.5938 0 L39.9609 0 L36.3281 0 L32.6953 0 L29.0625 0 L25.4297 0 L21.7969 0 L18.1641 0 L14.5312 0 L10.8984 0 L7.2656 0 L3.6328 0 L0 0 L-3.75 0 L-7.3828 0 L-11.0156 0 L-14.6484 0 L-18.2812 0 L-21.9141 0 L-25.5469 0 L-29.1797 0 L-32.8125 0 L-36.4453 0 L-40.0781 0 L-43.7109 0 L-47.3438 0 L-50.9766 0 L-54.6094 0 L-58.2422 0 Z" fill="none" stroke="#F0F0F0" stroke-width="1.5"/>
+  <circle id="pluck_node_2" transform="matrix(1 0 0 1 120 116)" cx="0" cy="0" r="6" fill="#8C8C8C" stroke="#8C8C8C" stroke-width="1"/>
+  <circle id="pluck_node_3" transform="matrix(1 0 0 1 360 116)" cx="0" cy="0" r="6" fill="#8C8C8C" stroke="#8C8C8C" stroke-width="1"/>
+  <path id="pluck_node_4" transform="matrix(1 0 0 1 192 150)" d="M0 -6 L5 3 L-5 3 Z" fill="#8C8C8C" stroke="#8C8C8C" stroke-width="1"/>
+  <!-- Palette entries, parked off screen: the string, the pegs and marker, the companions. -->
   <circle id="pluck_palette_0" transform="matrix(1 0 0 1 640 120)" cx="0" cy="0" r="1" fill="#F0F0F0" stroke="#F0F0F0" stroke-width="1.5"/>
   <circle id="pluck_palette_1" transform="matrix(1 0 0 1 640 120)" cx="0" cy="0" r="1" fill="#8C8C8C" stroke="#8C8C8C" stroke-width="1"/>
+  <circle id="pluck_palette_2" transform="matrix(1 0 0 1 640 120)" cx="0" cy="0" r="1" fill="#4A4A4A" stroke="#4A4A4A" stroke-width="1"/>
 </g>
