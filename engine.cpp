@@ -61,18 +61,28 @@ void excite(Voice& voice, u32 period, i32 bright, i32 pick) {
     for (u32 s = 0; s < 2; ++s) voice.strings[s].previous = voice.strings[s].input = voice.strings[s].output = 0;
 }
 
+// A first-order allpass supplies a period's last 1..2 samples: it delays
+// without dulling the tone, as linear interpolation would. Its coefficient
+// needs a division, so it is set once per block, while the pitch holds.
+struct Tap {
+    u32 delay;        // whole samples read back
+    i32 coefficient;  // Q15, (1 - d) / (1 + d) for the remaining d samples
+};
+Tap tap(u32 period) {
+    Tap result;
+    result.delay = (period >> 8) - 1;
+    const i32 rest = static_cast<i32>(period - (result.delay << 8));  // Q8, 1 to 2 samples
+    result.coefficient = (256 - rest) * 32768 / (256 + rest);
+    return result;
+}
+
 // One pass of a string: read one period back, filter, and write the result.
-// A first-order allpass supplies the period's last 1..2 samples: it delays
-// without dulling the tone, as linear interpolation would. damp is the loop
-// filter's weight on the previous sample (Q16, at most half): more weight
-// loses more treble each pass. The filter steps round toward zero, so the
-// string dies away instead of settling at -1.
-i32 step(String& string, u32 write, u32 period, i32 damp) {
-    const u32 delay = (period >> 8) - 1;
-    const i32 rest = static_cast<i32>(period - (delay << 8));  // Q8, 1 to 2 samples
-    const i32 coefficient = (256 - rest) * 32768 / (256 + rest);  // Q15, (1 - d) / (1 + d)
-    const i32 x = string.line[(write - delay) & kMask];
-    const i32 sample = string.input + coefficient * (x - string.output) / 32768;
+// damp is the loop filter's weight on the previous sample (Q16, at most
+// half): more weight loses more treble each pass. Dividing by powers of two
+// rounds toward zero, so the string dies away instead of settling at -1.
+i32 step(String& string, u32 write, Tap tap, i32 damp) {
+    const i32 x = string.line[(write - tap.delay) & kMask];
+    const i32 sample = string.input + tap.coefficient * (x - string.output) / 32768;
     string.input = x;
     string.output = sample;
     const i32 filtered = sample + (string.previous - sample) * damp / 65536;
@@ -112,9 +122,10 @@ inline void render(Voice& voice, Shared&, u32, opxy::Output output, opxy::Parame
     const u32 apart = static_cast<u32>(weight(parameters[3], 0, 950));
     u32 second = tuned + ((tuned >> 6) * apart >> 10);
     if (second > (kLength - 4) << 8) second = (kLength - 4) << 8;
+    const Tap taps[2] = {tap(tuned), tap(second)};
     for (unsigned i = 0; i < opxy::block_frames; ++i) {
-        const i32 first = step(voice.strings[0], voice.write, tuned, damp);
-        const i32 other = step(voice.strings[1], voice.write, second, damp);
+        const i32 first = step(voice.strings[0], voice.write, taps[0], damp);
+        const i32 other = step(voice.strings[1], voice.write, taps[1], damp);
         ++voice.write;
         output[i] = (first + other) / 2 * 65536;  // at most half scale
     }
