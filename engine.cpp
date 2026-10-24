@@ -6,7 +6,7 @@
 // period long, losing a little treble and energy every pass, and a pickup at
 // the pick point hears it. The OP-XY's own envelope and level shape the note;
 // the controls shape the string: Bright, Pick, Damp and Detune.
-namespace pluck {
+namespace karplus {
 namespace {
 using opxy::i32;
 using opxy::u32;

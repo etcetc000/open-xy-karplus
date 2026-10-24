@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "id": "pluck",
-  "name": "Pluck",
+  "id": "karplus",
+  "name": "Karplus",
   "parameters": [
     {
       "id": "bright",

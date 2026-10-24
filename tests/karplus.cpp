@@ -1,4 +1,4 @@
-// Sound checks for Pluck, compiled for the host and run by
+// Sound checks for Karplus, compiled for the host and run by
 //   python <open-xy>/sdk.py test --machine .
 #include "../engine.cpp"
 #include <cmath>
@@ -13,13 +13,13 @@ void check(const char* what, bool ok) {
 
 const unsigned kBlocks = 690;  // one second
 // Renders one note for a second.
-void play(pluck::Voice& voice, double hz, const opxy::i32* parameters, opxy::i32* out) {
-    pluck::Shared shared;
-    pluck::initialize(voice, shared, 1);
-    pluck::start(voice, shared, 1);
+void play(karplus::Voice& voice, double hz, const opxy::i32* parameters, opxy::i32* out) {
+    karplus::Shared shared;
+    karplus::initialize(voice, shared, 1);
+    karplus::start(voice, shared, 1);
     opxy::u32 pitch[opxy::block_frames];
     for (unsigned i = 0; i < opxy::block_frames; ++i) pitch[i] = static_cast<opxy::u32>(hz / 44100.0 * 4294967296.0);
-    for (unsigned b = 0; b < kBlocks; ++b) pluck::render(voice, shared, 1, out + b * opxy::block_frames, parameters, pitch);
+    for (unsigned b = 0; b < kBlocks; ++b) karplus::render(voice, shared, 1, out + b * opxy::block_frames, parameters, pitch);
 }
 
 double energy(const opxy::i32* out, unsigned from, unsigned count) {
@@ -73,15 +73,15 @@ double even_to_odd(const opxy::i32* out, double hz) {
     return even / odd;
 }
 
-bool one_string(const pluck::Voice& voice) {
-    for (unsigned i = 0; i < pluck::kLength; ++i)
+bool one_string(const karplus::Voice& voice) {
+    for (unsigned i = 0; i < karplus::kLength; ++i)
         if (voice.strings[0].line[i] != voice.strings[1].line[i]) return false;
     return true;
 }
 }
 
 int main() {
-    static pluck::Voice voice;
+    static karplus::Voice voice;
     static opxy::i32 out[kBlocks * opxy::block_frames];
     const opxy::i32 kHalf = 0x40000000, kFull = 0x7fffffff;
     // Bright, Pick, Damp, Detune.

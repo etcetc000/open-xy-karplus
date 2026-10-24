@@ -1,7 +1,7 @@
 #pragma once
 #include <opxy/draw.hpp>
 
-namespace pluck {
+namespace karplus {
 // Matches resources.display in definition.json: paths, points, nodes, texts, palette.
 // The string is four overlapping outlines (paths 0 to 3), then its two pegs,
 // the pick marker and four companion strings for Detune.

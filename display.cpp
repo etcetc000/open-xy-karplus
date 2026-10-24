@@ -7,7 +7,7 @@
 // waves of up to kPlucks notes ring at once and add up. Bright sets their
 // height, and Detune spreads faint companion strings above and below. Display
 // code only: no audio state.
-namespace pluck {
+namespace karplus {
 namespace {
 using opxy::i32;
 using opxy::u32;

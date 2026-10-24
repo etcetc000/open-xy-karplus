@@ -1,4 +1,4 @@
-# Pluck
+# Karplus
 
 A plucked-string synth for the OP-XY, built with the
 [Open-XY SDK](https://github.com/etcetc000/open-xy): the example of a machine
@@ -29,14 +29,14 @@ spreads companion strings above and below, darker the further out they are.
 | [core.h](core.h), [engine.cpp](engine.cpp) | Voice state and sound |
 | [display.h](display.h), [display.cpp](display.cpp), [panel.svg.fragment](panel.svg.fragment) | The screen |
 | [pick.h](pick.h) | Pick's sweep and the pickup's level, shared by the sound and the screen |
-| [tests/pluck.cpp](tests/pluck.cpp) | Sound checks: tuning at every Damp and Pick, ringing and fading, Damp's darkening, Pick's harmonics, Detune and the declared peak |
+| [tests/karplus.cpp](tests/karplus.cpp) | Sound checks: tuning at every Damp and Pick, ringing and fading, Damp's darkening, Pick's harmonics, Detune and the declared peak |
 
 With the SDK cloned next to this repository:
 
 ```sh
 python ../open-xy/sdk.py test --machine . --cxx clang++ --host-cxx g++
-python ../open-xy/sdk.py preview --machine . --out ../previews/pluck-001
-python ../open-xy/tools/serve_harness.py --preview ../previews/pluck-001
+python ../open-xy/sdk.py preview --machine . --out ../previews/karplus-001
+python ../open-xy/tools/serve_harness.py --preview ../previews/karplus-001
 ```
 
 Released versions are tags; the Open-XY catalog pins one of them.

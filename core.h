@@ -1,7 +1,7 @@
 #pragma once
 #include <opxy/audio.hpp>
 
-namespace pluck {
+namespace karplus {
 // A delay line holds one period of a string: 2048 samples reach about 21.5 Hz
 // at 44.1 kHz, below the OP-XY's lowest note.
 const unsigned kLength = 2048, kMask = kLength - 1;
