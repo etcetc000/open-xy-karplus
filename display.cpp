@@ -61,6 +61,10 @@ inline void display(DisplayState& state, const Input& input, Frame& frame) {
     const i32 at = static_cast<i32>(along(kPickPositions, input.parameters[1]) >> 5);  // the pick point, 0..512 of 1024
     const i32 damp = fraction(input.parameters[2]), detune = fraction(input.parameters[3]);
     const i32 pick = at * kLength;  // Q10 pixels from the left peg
+    // Whether the string was off rest: a frame that brings it to rest, by a reset
+    // or a fade, still draws it at rest.
+    bool was_moving = false;
+    for (u32 p = 0; p < kPlucks; ++p) was_moving = was_moving || state.plucks[p].amplitude;
     if (!state.initialized || state.track != input.track || input.reduced_motion) {
         for (u32 p = 0; p < kPlucks; ++p) state.plucks[p].amplitude = 0;
     } else if (input.note_serial != state.serial) {
@@ -114,8 +118,8 @@ inline void display(DisplayState& state, const Input& input, Frame& frame) {
         }
         place(frame, static_cast<u32>(piece), kLeft * unit + centre, kY * unit, unit, 0, stroke);
     }
-    // New geometry only while the string moves; at rest it stays as it is.
-    if (moving) state.key = state.key % 0x7ffffffeu + 1;
+    // New geometry while the string moves and as it comes to rest; at rest it stays as it is.
+    if (moving || was_moving) state.key = state.key % 0x7ffffffeu + 1;
     for (i32 piece = 0; piece < kPieces; ++piece) frame.paths[piece].key = state.key;
     place(frame, kPeg, kLeft * unit, kY * unit, unit, 1, fill_and_stroke);
     place(frame, kPeg + 1, kRight * unit, kY * unit, unit, 1, fill_and_stroke);
