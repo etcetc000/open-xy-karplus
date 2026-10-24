@@ -17,6 +17,9 @@ the controls shape the string.
 | Damp | Treble lost on every pass: a glassy, metallic ring to a dull, felt-muted string |
 | Detune | A second string up to about 25 cents apart, for a chorused, twelve-string shimmer |
 
+Control captions show whole numbers from 0–100; Shift + turn retains fine
+adjustment.
+
 The screen shows the string between its pegs. Each note sends a small wave
 out both ways from the Pick position; the waves bounce off the pegs and fade
 faster the more the string is damped, and Bright sets their height. The waves
