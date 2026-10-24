@@ -127,7 +127,9 @@ inline void display(DisplayState& state, const Input& input, Frame& frame) {
             place(frame, kCompanion + c, (kLeft + kLength / 2) * unit, kY * unit + step * detune * 20, unit,
                   step == 1 || step == -1 ? 2 : 3, stroke);
         else
-            hide(frame, kCompanion + c);
+            // Below the screen: hide() parks at x 640, from which a 380-pixel
+            // line would still reach back onto the 480-pixel screen.
+            place(frame, kCompanion + c, hidden_x * unit, node_bottom * unit, unit, 0, keep);
     }
 }
 }
