@@ -26,6 +26,7 @@ spreads companion strings above and below, darker the further out they are.
 | File | Owns |
 | --- | --- |
 | [definition.json](definition.json), [machine.json](machine.json) | Controls, presets, resources, SDK version and identity |
+| [presets/default.json](presets/default.json) | The device starting sound, installed as `content/presets/karplus/default.json` by the SDK's repository-preset support |
 | [core.h](core.h), [engine.cpp](engine.cpp) | Voice state and sound |
 | [display.h](display.h), [display.cpp](display.cpp), [panel.svg.fragment](panel.svg.fragment) | The screen |
 | [pick.h](pick.h) | Pick's sweep and the pickup's level, shared by the sound and the screen |
