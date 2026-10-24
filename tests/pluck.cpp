@@ -1,6 +1,7 @@
 // Sound checks for Pluck, compiled for the host and run by
 //   python <open-xy>/sdk.py test --machine .
 #include "../engine.cpp"
+#include <cmath>
 #include <cstdio>
 #include <initializer_list>
 
@@ -54,6 +55,24 @@ bool bounded(const opxy::i32* out) {
     return true;
 }
 
+// Energy of harmonic k of hz over a tenth of a second from `from`.
+double harmonic(const opxy::i32* out, unsigned from, double hz, unsigned k) {
+    double re = 0, im = 0;
+    for (unsigned i = 0; i < 4410; ++i) {
+        const double phase = 6.283185307179586 * hz * k * i / 44100.0;
+        re += out[from + i] * std::cos(phase);
+        im += out[from + i] * std::sin(phase);
+    }
+    return re * re + im * im;
+}
+
+// Even harmonics' energy over odd ones', harmonics 1 to 8, a fifth of a second in.
+double even_to_odd(const opxy::i32* out, double hz) {
+    double even = 0, odd = 0;
+    for (unsigned k = 1; k <= 8; ++k) (k % 2 ? odd : even) += harmonic(out, 8820, hz, k);
+    return even / odd;
+}
+
 bool one_string(const pluck::Voice& voice) {
     for (unsigned i = 0; i < pluck::kLength; ++i)
         if (voice.strings[0].line[i] != voice.strings[1].line[i]) return false;
@@ -88,6 +107,18 @@ int main() {
     };
     const opxy::i32 glassy[8] = {kFull, kHalf / 4, 0, 0}, felt[8] = {kFull, kHalf / 4, kFull, 0};
     check("Damp darkens the ring", roughness(felt) < 0.5 * roughness(glassy));
+    // Pick: plucked and heard at the middle, the string loses its even
+    // harmonics for the whole note; at the bridge it keeps them.
+    const opxy::i32 middle[8] = {kHalf, kFull, kHalf / 4, 0}, bridge[8] = {kHalf, 0, kHalf / 4, 0};
+    play(voice, 110.0, middle, out);
+    const double hollow = even_to_odd(out, 110.0);
+    check("in tune plucked at the middle", period(out, 2048) > 44100.0 / 110 * 0.99 && period(out, 2048) < 44100.0 / 110 * 1.01);
+    play(voice, 110.0, bridge, out);
+    const double full = even_to_odd(out, 110.0);
+    check("in tune plucked at the bridge", period(out, 2048) > 44100.0 / 110 * 0.99 && period(out, 2048) < 44100.0 / 110 * 1.01);
+    check("the middle sounds hollow", hollow < 0.05);
+    check("the bridge keeps its even harmonics", full > 0.3);
+    check("plucked at the bridge within the declared peak", bounded(out));
     // Detune separates the two strings; without it they stay one.
     const opxy::i32 single[8] = {kHalf, kHalf / 2, kHalf / 4, 0}, doubled[8] = {kHalf, kHalf / 2, kHalf / 4, kFull};
     play(voice, 220.0, single, out);

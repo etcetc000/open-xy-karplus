@@ -1,4 +1,5 @@
 #include "display.h"
+#include "pick.h"
 
 // A string between two pegs. Each note sends a small wave out both ways from
 // the Pick position; the waves bounce off the pegs, which hold still, inverting
@@ -56,7 +57,8 @@ inline void display_reset(DisplayState& state) {
 
 inline void display(DisplayState& state, const Input& input, Frame& frame) {
     const i32 elapsed = clamp(input.elapsed, 0, 205);  // at most 0.2 s per frame
-    const i32 bright = fraction(input.parameters[0]), at = fraction(input.parameters[1]);
+    const i32 bright = fraction(input.parameters[0]);
+    const i32 at = static_cast<i32>(along(kPickPositions, input.parameters[1]) >> 5);  // the pick point, 0..512 of 1024
     const i32 damp = fraction(input.parameters[2]), detune = fraction(input.parameters[3]);
     const i32 pick = at * kLength;  // Q10 pixels from the left peg
     if (!state.initialized || state.track != input.track || input.reduced_motion) {

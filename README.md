@@ -5,15 +5,15 @@ A plucked-string synth for the OP-XY, built with the
 that lives in its own repository and reaches the Open-XY builder through the
 catalog.
 
-Each note fills a delay line one period long with a burst of noise. The burst
-circulates, losing a little treble and energy each pass, like a string
-(Karplus-Strong synthesis). The OP-XY's own envelope and level shape the note;
+Each note fills a delay line one period long with a pluck. It circulates,
+losing a little treble and energy each pass, like a string (Karplus-Strong
+synthesis), and a pickup at the pick point hears it. The OP-XY's own envelope and level shape the note;
 the controls shape the string.
 
 | Control | Effect |
 | --- | --- |
-| Bright | The pluck's brightness: a soft finger to a hard pick |
-| Pick | Where the string is plucked, from near the bridge to the middle |
+| Bright | The pluck: a soft finger pulling the string aside, up to a hard, bright pick |
+| Pick | Where the string is plucked and heard: thin and twangy at the bridge, nasal, then round and hollow at the middle, for the whole note |
 | Damp | Treble lost on every pass: a glassy, metallic ring to a dull, felt-muted string |
 | Detune | A second string up to about 25 cents apart, for a chorused, twelve-string shimmer |
 
@@ -28,7 +28,8 @@ spreads companion strings above and below, darker the further out they are.
 | [definition.json](definition.json), [machine.json](machine.json) | Controls, presets, resources, SDK version and identity |
 | [core.h](core.h), [engine.cpp](engine.cpp) | Voice state and sound |
 | [display.h](display.h), [display.cpp](display.cpp), [panel.svg.fragment](panel.svg.fragment) | The screen |
-| [tests/pluck.cpp](tests/pluck.cpp) | Sound checks: tuning at every Damp, ringing and fading, Damp's darkening, Detune and the declared peak |
+| [pick.h](pick.h) | Pick's sweep and the pickup's level, shared by the sound and the screen |
+| [tests/pluck.cpp](tests/pluck.cpp) | Sound checks: tuning at every Damp and Pick, ringing and fading, Damp's darkening, Pick's harmonics, Detune and the declared peak |
 
 With the SDK cloned next to this repository:
 
