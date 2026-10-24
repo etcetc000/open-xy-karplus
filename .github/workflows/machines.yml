@@ -12,7 +12,7 @@ env:
   # The Open-XY SDK this repository is checked against. Use the SDK release
   # that matches "sdk" in each machine.json.
   OPEN_XY_REPOSITORY: etcetc000/open-xy
-  OPEN_XY_REF: sdk/machine-starters
+  OPEN_XY_REF: staging
 jobs:
   machines:
     runs-on: ubuntu-latest
