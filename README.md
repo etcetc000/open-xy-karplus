@@ -1,5 +1,10 @@
 # Karplus
 
+> **Moved.** This machine now lives in
+> [open-xy-core-machines](https://github.com/etcetc000/open-xy-core-machines/tree/main/machines/karplus),
+> with the rest of Open-XY's own machines, and the catalog builds it from there.
+> This repository is archived and no longer updated.
+
 A plucked-string synth for the OP-XY, built with the
 [Open-XY SDK](https://github.com/etcetc000/open-xy): the example of a machine
 that lives in its own repository and reaches the Open-XY builder through the
